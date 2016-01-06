@@ -142,9 +142,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="FlowerBox.h" />
     <ClInclude Include="FlowerBoxGroup.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="FlowerBox.cpp" />
     <ClCompile Include="FlowerBoxGroup.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

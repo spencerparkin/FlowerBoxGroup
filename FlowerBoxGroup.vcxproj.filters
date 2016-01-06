@@ -10,9 +10,15 @@
     <ClInclude Include="FlowerBoxGroup.h">
       <Filter>Code</Filter>
     </ClInclude>
+    <ClInclude Include="FlowerBox.h">
+      <Filter>Code</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FlowerBoxGroup.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="FlowerBox.cpp">
       <Filter>Code</Filter>
     </ClCompile>
   </ItemGroup>
