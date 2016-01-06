@@ -229,35 +229,39 @@ void FlowerBox::PermuteCorner( Corner corner, Rotate rotate )
 		}
 	};
 
-	for( int i = 0; i < 6; i++ )
+	int count = ( rotate == ROTATE_CW ? 1 : 2 );
+	for( int j = 0; j < count; j++ )
 	{
-		int x, y, z;
+		for( int i = 0; i < 6; i++ )
+		{
+			int x, y, z;
 
-		x = triCycle[i][0][0];
-		y = triCycle[i][0][1];
-		z = triCycle[i][0][2];
+			x = triCycle[i][0][0];
+			y = triCycle[i][0][1];
+			z = triCycle[i][0][2];
 
-		Transform( x, y, z, x, y, z );
-		Face* faceX = &faceMatrix[ x + 2 ][ y + 2 ][ z + 2 ];
+			Transform( x, y, z, x, y, z );
+			Face* faceX = &faceMatrix[ x + 2 ][ y + 2 ][ z + 2 ];
 
-		x = triCycle[i][1][0];
-		y = triCycle[i][1][1];
-		z = triCycle[i][1][2];
+			x = triCycle[i][1][0];
+			y = triCycle[i][1][1];
+			z = triCycle[i][1][2];
 
-		Transform( x, y, z, x, y, z );
-		Face* faceY = &faceMatrix[ x + 2 ][ y + 2 ][ z + 2 ];
+			Transform( x, y, z, x, y, z );
+			Face* faceY = &faceMatrix[ x + 2 ][ y + 2 ][ z + 2 ];
 
-		x = triCycle[i][2][0];
-		y = triCycle[i][2][1];
-		z = triCycle[i][2][2];
+			x = triCycle[i][2][0];
+			y = triCycle[i][2][1];
+			z = triCycle[i][2][2];
 
-		Transform( x, y, z, x, y, z );
-		Face* faceZ = &faceMatrix[ x + 2 ][ y + 2 ][ z + 2 ];
+			Transform( x, y, z, x, y, z );
+			Face* faceZ = &faceMatrix[ x + 2 ][ y + 2 ][ z + 2 ];
 
-		Face tempFace = *faceX;
-		*faceX = *faceY;
-		*faceY = *faceZ;
-		*faceZ = tempFace;
+			Face tempFace = *faceX;
+			*faceX = *faceY;
+			*faceY = *faceZ;
+			*faceZ = tempFace;
+		}
 	}
 
 	PopMatrix();
