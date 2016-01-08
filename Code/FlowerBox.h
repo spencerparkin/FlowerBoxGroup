@@ -4,6 +4,8 @@
 
 #include <stdio.h>
 #include <list>
+#include <vector>
+#include "c3ga/c3ga.h"
 
 class FlowerBox
 {
@@ -69,9 +71,38 @@ public:
 		CORNER_PX_NY_PZ,
 		CORNER_PX_PY_NZ,
 		CORNER_PX_PY_PZ,
+		CORNER_COUNT,
 	};
 
 	void PermuteCorner( Corner corner, Rotate rotate );
+
+	typedef std::vector< c3ga::vectorE3GA > VertexBuffer;
+	typedef std::vector< int > IndexBuffer;
+
+	class Polygon
+	{
+	public:
+
+		void Draw( FlowerBox* flowerBox );
+
+		int x, y, z;
+
+		IndexBuffer indexBuffer;
+		IndexBuffer boundCorners;
+	};
+
+	typedef std::vector< Polygon > PolygonArray;
+	PolygonArray polygonArray;
+
+	VertexBuffer vertexBuffer;
+
+	double cornerRotationAngles[ CORNER_COUNT ];
+
+	void ModelFace( Color color );
+	void ModelFace( const VertexBuffer& polygonVerts, const c3ga::rotorE3GA& rotor, int x, int y, int z );
+	int GetIndexForVertex( const c3ga::vectorE3GA& vertex );
+	static c3ga::rotorE3GA AxisAngleRotor( const c3ga::vectorE3GA& unitAxis, double angleDegrees );
+	static c3ga::vectorE3GA CornerAxis( Corner corner );
 };
 
 // FlowerBox.h

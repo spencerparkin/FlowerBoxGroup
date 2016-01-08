@@ -25,6 +25,9 @@ void Canvas::OnPaint( wxPaintEvent& event )
 	glClearColor( 0.f, 0.f, 0.f, 1.f );
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
+	// We may or may not want back-face culling too.  Perhaps add a toggle for it.
+	glEnable( GL_DEPTH_TEST );
+
 	GLint viewport[4];
 	glGetIntegerv( GL_VIEWPORT, viewport );
 	GLdouble aspectRatio = GLdouble( viewport[2] ) / GLdouble( viewport[3] );
@@ -35,7 +38,7 @@ void Canvas::OnPaint( wxPaintEvent& event )
 
 	glMatrixMode( GL_MODELVIEW );
 	glLoadIdentity();
-	gluLookAt( 0.0, 0.0, 20.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0 );
+	gluLookAt( 0.0, 0.0, 4.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0 );
 
 	flowerBox->Draw();
 

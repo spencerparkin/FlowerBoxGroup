@@ -2,6 +2,7 @@
 
 #include "FlowerBox.h"
 #include <wx/glcanvas.h>
+#include <math.h>
 
 FlowerBox::FlowerBox( void )
 {
@@ -46,15 +47,268 @@ FlowerBox::FlowerBox( void )
 			}
 		}
 	}
+
+	for( int i = 0; i < CORNER_COUNT; i++ )
+		cornerRotationAngles[i] = 0.0;
+
+	ModelFace( RED );
+	ModelFace( ORANGE );
+	ModelFace( GREEN );
+	ModelFace( BLUE );
+	ModelFace( WHITE );
+	ModelFace( YELLOW );
+
+	for( int i = 0; i < ( signed )polygonArray.size(); i++ )
+	{
+		Polygon& polygon = polygonArray[i];
+
+		if( polygon.x <= 0 && polygon.y <= 0 && polygon.z <= 0 )
+			polygon.boundCorners.push_back( CORNER_NX_NY_NZ );
+
+		if( polygon.x <= 0 && polygon.y <= 0 && polygon.z >= 0 )
+			polygon.boundCorners.push_back( CORNER_NX_NY_PZ );
+
+		if( polygon.x <= 0 && polygon.y >= 0 && polygon.z <= 0 )
+			polygon.boundCorners.push_back( CORNER_NX_PY_NZ );
+
+		if( polygon.x >= 0 && polygon.y >= 0 && polygon.z >= 0 )
+			polygon.boundCorners.push_back( CORNER_PX_PY_PZ );
+
+		if( polygon.x >= 0 && polygon.y <= 0 && polygon.z <= 0 )
+			polygon.boundCorners.push_back( CORNER_PX_NY_NZ );
+
+		if( polygon.x >= 0 && polygon.y <= 0 && polygon.z >= 0 )
+			polygon.boundCorners.push_back( CORNER_PX_NY_PZ );
+
+		if( polygon.x >= 0 && polygon.y >= 0 && polygon.z <= 0 )
+			polygon.boundCorners.push_back( CORNER_PX_PY_NZ );
+
+		if( polygon.x >= 0 && polygon.y >= 0 && polygon.z >= 0 )
+			polygon.boundCorners.push_back( CORNER_PX_PY_PZ );
+
+		//...we're not done yet...
+	}
 }
 
 FlowerBox::~FlowerBox( void )
 {
 }
 
+void FlowerBox::ModelFace( Color color )
+{
+	VertexBuffer vertexBuffer;
+
+	vertexBuffer.push_back( c3ga::vectorE3GA( c3ga::vectorE3GA::coord_e1_e2_e3, -1.0, -1.0, 1.0 ) );
+	vertexBuffer.push_back( c3ga::vectorE3GA( c3ga::vectorE3GA::coord_e1_e2_e3, 1.0, -1.0, 1.0 ) );
+	vertexBuffer.push_back( c3ga::vectorE3GA( c3ga::vectorE3GA::coord_e1_e2_e3, 1.0, 1.0, 1.0 ) );
+	vertexBuffer.push_back( c3ga::vectorE3GA( c3ga::vectorE3GA::coord_e1_e2_e3, -1.0, 1.0, 1.0 ) );
+
+	vertexBuffer.push_back( c3ga::vectorE3GA( c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, -0.4, 1.0 ) );
+	vertexBuffer.push_back( c3ga::vectorE3GA( c3ga::vectorE3GA::coord_e1_e2_e3, 0.4, 0.0, 1.0 ) );
+	vertexBuffer.push_back( c3ga::vectorE3GA( c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 0.4, 1.0 ) );
+	vertexBuffer.push_back( c3ga::vectorE3GA( c3ga::vectorE3GA::coord_e1_e2_e3, -0.4, 0.0, 1.0 ) );
+
+	c3ga::rotorE3GA rotor;
+
+	c3ga::vectorE3GA xAxis( c3ga::vectorE3GA::coord_e1_e2_e3, 1.0, 0.0, 0.0 );
+	c3ga::vectorE3GA yAxis( c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 1.0, 0.0 );
+	c3ga::vectorE3GA zAxis( c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 0.0, 1.0 );
+
+	switch( color )
+	{
+		case RED:			rotor = AxisAngleRotor( yAxis, -90.0 );		break;
+		case ORANGE:		rotor = AxisAngleRotor( yAxis, 90.0 );		break;
+		case GREEN:			rotor = AxisAngleRotor( yAxis, 180.0 );		break;
+		case BLUE:			rotor = AxisAngleRotor( xAxis, 0.0 );		break;
+		case WHITE:			rotor = AxisAngleRotor( xAxis, 90.0 );		break;
+		case YELLOW:		rotor = AxisAngleRotor( xAxis, -90.0 );		break;
+	}
+
+	VertexBuffer polygonA;
+	polygonA.push_back( vertexBuffer[0] );
+	polygonA.push_back( vertexBuffer[7] );
+	polygonA.push_back( vertexBuffer[3] );
+	ModelFace( polygonA, rotor, -1, 0, 2 );
+
+	VertexBuffer polygonB;
+	polygonB.push_back( vertexBuffer[0] );
+	polygonB.push_back( vertexBuffer[1] );
+	polygonB.push_back( vertexBuffer[4] );
+	ModelFace( polygonB, rotor, 0, -1, 2 );
+
+	VertexBuffer polygonC;
+	polygonC.push_back( vertexBuffer[1] );
+	polygonC.push_back( vertexBuffer[2] );
+	polygonC.push_back( vertexBuffer[5] );
+	ModelFace( polygonC, rotor, 1, 0, 2 );
+
+	VertexBuffer polygonD;
+	polygonD.push_back( vertexBuffer[2] );
+	polygonD.push_back( vertexBuffer[3] );
+	polygonD.push_back( vertexBuffer[6] );
+	ModelFace( polygonD, rotor, 0, 1, 2 );
+
+	VertexBuffer polygonE;
+	polygonE.push_back( vertexBuffer[0] );
+	polygonE.push_back( vertexBuffer[4] );
+	polygonE.push_back( vertexBuffer[7] );
+	ModelFace( polygonE, rotor, -1, -1, 2 );
+
+	VertexBuffer polygonF;
+	polygonF.push_back( vertexBuffer[4] );
+	polygonF.push_back( vertexBuffer[1] );
+	polygonF.push_back( vertexBuffer[5] );
+	ModelFace( polygonF, rotor, 1, -1, 2 );
+
+	VertexBuffer polygonG;
+	polygonG.push_back( vertexBuffer[5] );
+	polygonG.push_back( vertexBuffer[2] );
+	polygonG.push_back( vertexBuffer[6] );
+	ModelFace( polygonG, rotor, 1, 1, 2 );
+
+	VertexBuffer polygonH;
+	polygonH.push_back( vertexBuffer[6] );
+	polygonH.push_back( vertexBuffer[3] );
+	polygonH.push_back( vertexBuffer[7] );
+	ModelFace( polygonH, rotor, -1, 1, 2 );
+
+	VertexBuffer polygonI;
+	polygonI.push_back( vertexBuffer[4] );
+	polygonI.push_back( vertexBuffer[5] );
+	polygonI.push_back( vertexBuffer[6] );
+	polygonI.push_back( vertexBuffer[7] );
+	ModelFace( polygonI, rotor, 0, 0, 2 );
+}
+
+void FlowerBox::ModelFace( const VertexBuffer& polygonVerts, const c3ga::rotorE3GA& rotor, int x, int y, int z )
+{
+	Polygon polygon;
+
+	c3ga::vectorE3GA indexVector( c3ga::vectorE3GA::coord_e1_e2_e3, x, y, z );
+	indexVector = c3ga::applyUnitVersor( rotor, indexVector );
+
+	polygon.x = int( indexVector.m_e1 );
+	polygon.y = int( indexVector.m_e2 );
+	polygon.z = int( indexVector.m_e3 );
+
+	for( int i = 0; i < ( signed )polygonVerts.size(); i++ )
+	{
+		c3ga::vectorE3GA vertex = polygonVerts[i];
+		vertex = c3ga::applyUnitVersor( rotor, vertex );
+		polygon.indexBuffer.push_back( GetIndexForVertex( vertex ) );
+	}
+
+	polygonArray.push_back( polygon );
+}
+
+int FlowerBox::GetIndexForVertex( const c3ga::vectorE3GA& vertex )
+{
+	double eps = 1e-5;
+	for( int i = 0; i < ( signed )vertexBuffer.size(); i++ )
+		if( c3ga::norm( vertexBuffer[i] - vertex ) < eps )
+			return i;
+	
+	vertexBuffer.push_back( vertex );
+	return int( vertexBuffer.size() - 1 );
+}
+
+/*static*/ c3ga::rotorE3GA FlowerBox::AxisAngleRotor( const c3ga::vectorE3GA& unitAxis, double angleDegrees )
+{
+	double halfAngleRadians = ( M_PI / 180.0 ) * angleDegrees * 0.5;
+	double cosHalfAngle = cos( halfAngleRadians );
+	double sinHalfAngle = sin( halfAngleRadians );
+
+	c3ga::rotorE3GA rotor;
+
+	rotor.m_scalar = cosHalfAngle;
+	rotor.m_e2_e3 = -sinHalfAngle * unitAxis.m_e1;
+	rotor.m_e3_e1 = -sinHalfAngle * unitAxis.m_e2;
+	rotor.m_e1_e2 = -sinHalfAngle * unitAxis.m_e3;
+
+	return rotor;
+}
+
+/*static*/ c3ga::vectorE3GA FlowerBox::CornerAxis( Corner corner )
+{
+	c3ga::vectorE3GA axis( c3ga::vectorE3GA::coord_e1_e2_e3, 1.0, 0.0, 0.0 );
+
+	switch( corner )
+	{
+		case CORNER_NX_NY_NZ: axis.set( c3ga::vectorE3GA::coord_e1_e2_e3, -1.0, -1.0, -1.0 ); break;
+		case CORNER_NX_NY_PZ: axis.set( c3ga::vectorE3GA::coord_e1_e2_e3, -1.0, -1.0, 1.0 ); break;
+		case CORNER_NX_PY_NZ: axis.set( c3ga::vectorE3GA::coord_e1_e2_e3, -1.0, 1.0, -1.0 ); break;
+		case CORNER_NX_PY_PZ: axis.set( c3ga::vectorE3GA::coord_e1_e2_e3, -1.0, 1.0, 1.0 ); break;
+		case CORNER_PX_NY_NZ: axis.set( c3ga::vectorE3GA::coord_e1_e2_e3, 1.0, -1.0, -1.0 ); break;
+		case CORNER_PX_NY_PZ: axis.set( c3ga::vectorE3GA::coord_e1_e2_e3, 1.0, -1.0, 1.0 ); break;
+		case CORNER_PX_PY_NZ: axis.set( c3ga::vectorE3GA::coord_e1_e2_e3, 1.0, 1.0, -1.0 ); break;
+		case CORNER_PX_PY_PZ: axis.set( c3ga::vectorE3GA::coord_e1_e2_e3, 1.0, 1.0, 1.0 ); break;
+	}
+
+	axis = c3ga::unit( axis );
+	return axis;
+}
+
 void FlowerBox::Draw( void )
 {
-	
+	int count = ( signed )polygonArray.size();
+	for( int i = 0; i < count; i++ )
+	{
+		Polygon& polygon = polygonArray[i];
+		polygon.Draw( this );
+	}
+}
+
+void FlowerBox::Polygon::Draw( FlowerBox* flowerBox )
+{
+	Face& face = flowerBox->faceMatrix[ x + 2 ][ y + 2 ][ z + 2 ];
+
+	switch( face.color )
+	{
+		case WHITE:		glColor3f( 1.f, 1.f, 1.f );		break;
+		case YELLOW:	glColor3f( 1.f, 1.f, 0.f );		break;
+		case RED:		glColor3f( 1.f, 0.f, 0.f );		break;
+		case ORANGE:	glColor3f( 1.f, 0.6f, 0.f );	break;
+		case BLUE:		glColor3f( 0.f, 0.f, 1.f );		break;
+		case GREEN:		glColor3f( 0.f, 1.f, 0.f );		break;
+		default:		glColor3f( 0.5f, 0.5f, 0.5f );	break;
+	}
+
+	c3ga::rotorE3GA rotor( c3ga::rotorE3GA::coord_scalar_e1e2_e2e3_e3e1, 1.0, 0.0, 0.0, 0.0 );
+
+	// No more than one corner will ever be rotating at once, but this just seems more correct to me.
+	// If we did simulate trying to pull a face in multiple direction with two adjacent corner rotations,
+	// then we would really need to weight the face to each corner/rotor by some amount.
+	for( int i = 0; i < ( signed )boundCorners.size(); i++ )
+	{
+		int j = boundCorners[i];
+		c3ga::rotorE3GA cornerRotor = AxisAngleRotor( CornerAxis( Corner(i) ), flowerBox->cornerRotationAngles[j] );
+		rotor = rotor * cornerRotor;
+	}
+
+	VertexBuffer polygonVerts;
+	c3ga::vectorE3GA center( c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 0.0, 0.0 );
+
+	for( int i = 0; i < ( signed )indexBuffer.size(); i++ )
+	{
+		int j = indexBuffer[i];
+		c3ga::vectorE3GA vertex = flowerBox->vertexBuffer[j];
+		vertex = c3ga::applyUnitVersor( rotor, vertex );
+		polygonVerts.push_back( vertex );
+		center = center + vertex;
+	}
+
+	center = center * ( 1.0 / double( indexBuffer.size() ) );
+
+	glBegin( GL_POLYGON );
+
+	for( int i = 0; i < ( signed )polygonVerts.size(); i++ )
+	{
+		c3ga::vectorE3GA vertex = polygonVerts[i];
+		vertex = center + ( vertex - center ) * 0.9;
+		glVertex3f( vertex.m_e1, vertex.m_e2, vertex.m_e3 );
+	}
+
+	glEnd();
 }
 
 void FlowerBox::PushMatrix( const Matrix* matrix /*= nullptr*/ )
