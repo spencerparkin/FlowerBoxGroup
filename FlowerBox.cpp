@@ -26,18 +26,18 @@ FlowerBox::FlowerBox( void )
 
 				if( ( -2 < y && y < 2 ) && ( -2 < x && x < 2 ) )
 				{
-					if( z == 2 )
+					if( z == -2 )
 						face->color = GREEN;
-					else if( x == 2 )
+					else if( z == 2 )
 						face->color = BLUE;
 				}
 
 				if( ( -2 < x && x < 2 ) && ( -2 < z && z < 2 ) )
 				{
 					if( y == -2 )
-						face->color = YELLOW;
-					else if( y == 2 )
 						face->color = WHITE;
+					else if( y == 2 )
+						face->color = YELLOW;
 				}
 
 				if( face->color )
@@ -51,9 +51,9 @@ FlowerBox::~FlowerBox( void )
 {
 }
 
-void FlowerBox::Print( FILE* fp ) const
+void FlowerBox::Draw( void )
 {
-
+	//...
 }
 
 void FlowerBox::PushMatrix( const Matrix* matrix /*= nullptr*/ )
@@ -158,54 +158,91 @@ void FlowerBox::Matrix::SetZAxis( int x, int y, int z )
 	ele[2][2] = z;
 }
 
+void FlowerBox::Matrix::Transpose( void )
+{
+	for( int i = 0; i < 3; i++ )
+	{
+		for( int j = 0; j < i; j++ )
+		{
+			int e = ele[i][j];
+			ele[i][j] = ele[j][i];
+			ele[j][i] = e;
+		}
+	}
+}
+
 void FlowerBox::PermuteCorner( Corner corner, Rotate rotate )
 {
 	PushMatrix();
 
+	Matrix rotationMatrix;
+
+	// We must position the corner in the postive octant.
+	// The orientation of the corner doesn't matter.
 	switch( corner )
 	{
-	case CORNER_NX_NY_NZ:
-	{
-		// +X-axis, CW 90; +Y-axis, CW 180.
-		break;
-	}
-	case CORNER_NX_NY_PZ:
-	{
-		// +Z-axis, CW 180.
-		break;
-	}
-	case CORNER_NX_PY_NZ:
-	{
-		// +Y-axis, CCW 180.
-		break;
-	}
-	case CORNER_NX_PY_PZ:
-	{
-		// +Y-axis, CCW 90.
-		break;
-	}
-	case CORNER_PX_NY_NZ:
-	{
-		// +X-axis, CW 180.
-		break;
-	}
-	case CORNER_PX_NY_PZ:
-	{
-		// +X-axis, CW 90.
-		break;
-	}
-	case CORNER_PX_PY_NZ:
-	{
-		// +Y-axis, CW 90.
-		break;
-	}
-	case CORNER_PX_PY_PZ:
-	{
-		break;
-	}
+		case CORNER_NX_NY_NZ:
+		{
+			rotationMatrix.SetXAxis( -1, 0, 0 );
+			rotationMatrix.SetYAxis( 0, 0, -1 );
+			rotationMatrix.SetZAxis( 0, -1, 0 );
+			break;
+		}
+		case CORNER_NX_NY_PZ:
+		{
+			rotationMatrix.SetXAxis( -1, 0, 0 );
+			rotationMatrix.SetYAxis( 0, -1, 0 );
+			rotationMatrix.SetZAxis( 0, 0, 1 );
+			break;
+		}
+		case CORNER_NX_PY_NZ:
+		{
+			rotationMatrix.SetXAxis( -1, 0, 0 );
+			rotationMatrix.SetYAxis( 0, 1, 0 );
+			rotationMatrix.SetZAxis( 0, 0, -1 );
+			break;
+		}
+		case CORNER_NX_PY_PZ:
+		{
+			rotationMatrix.SetXAxis( 0, 0, -1 );
+			rotationMatrix.SetYAxis( 0, 1, 0 );
+			rotationMatrix.SetZAxis( 1, 0, 0 );
+			break;
+		}
+		case CORNER_PX_NY_NZ:
+		{
+			rotationMatrix.SetXAxis( 1, 0, 0 );
+			rotationMatrix.SetYAxis( 0, -1, 0 );
+			rotationMatrix.SetZAxis( 0, 0, -1 );
+			break;
+		}
+		case CORNER_PX_NY_PZ:
+		{
+			rotationMatrix.SetXAxis( 0, 1, 0 );
+			rotationMatrix.SetYAxis( 0, 0, -1 );
+			rotationMatrix.SetZAxis( 0, 0, 1 );
+			break;
+		}
+		case CORNER_PX_PY_NZ:
+		{
+			rotationMatrix.SetXAxis( 1, 0, 0 );
+			rotationMatrix.SetYAxis( 0, 1, 0 );
+			rotationMatrix.SetZAxis( 0, 0, 1 );
+			break;
+		}
+		case CORNER_PX_PY_PZ:
+		{
+			rotationMatrix.SetXAxis( 0, 0, 1 );
+			rotationMatrix.SetYAxis( 0, 1, 0 );
+			rotationMatrix.SetZAxis( -1, 0, 0 );
+			break;
+		}
 	}
 
-	//MulMatrix( rotationMatrix );
+	// We actually want the inverse (which in our case, is the transpose.)
+	rotationMatrix.Transpose();
+
+	MulMatrix( rotationMatrix );
 
 	int triCycle[6][3][3] =
 	{

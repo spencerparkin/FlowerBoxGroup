@@ -12,7 +12,7 @@ public:
 	FlowerBox( void );
 	~FlowerBox( void );
 
-	void Print( FILE* fp ) const;
+	void Draw( void );
 
 	enum Color
 	{
@@ -40,6 +40,8 @@ public:
 		void SetXAxis( int x, int y, int z );
 		void SetYAxis( int x, int y, int z );
 		void SetZAxis( int x, int y, int z );
+
+		void Transpose( void );
 	};
 
 	typedef std::list< Matrix > MatrixList;
