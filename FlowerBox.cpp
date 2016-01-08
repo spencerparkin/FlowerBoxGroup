@@ -1,6 +1,7 @@
 // FlowerBox.cpp
 
 #include "FlowerBox.h"
+#include <wx/glcanvas.h>
 
 FlowerBox::FlowerBox( void )
 {
