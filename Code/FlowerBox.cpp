@@ -54,7 +54,7 @@ FlowerBox::~FlowerBox( void )
 
 void FlowerBox::Draw( void )
 {
-	//...
+	
 }
 
 void FlowerBox::PushMatrix( const Matrix* matrix /*= nullptr*/ )

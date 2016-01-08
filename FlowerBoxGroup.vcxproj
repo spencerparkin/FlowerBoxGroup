@@ -18,6 +18,21 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Code\App.cpp" />
+    <ClCompile Include="Code\c3ga\c3ga.cpp" />
+    <ClCompile Include="Code\c3ga\c3ga_parse_mv.cpp" />
+    <ClCompile Include="Code\Canvas.cpp" />
+    <ClCompile Include="Code\FlowerBox.cpp" />
+    <ClCompile Include="Code\Frame.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Code\App.h" />
+    <ClInclude Include="Code\c3ga\c3ga.h" />
+    <ClInclude Include="Code\Canvas.h" />
+    <ClInclude Include="Code\FlowerBox.h" />
+    <ClInclude Include="Code\Frame.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{33D8E3AD-2D8F-409B-8003-30C745695E10}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
@@ -144,18 +159,6 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="App.cpp" />
-    <ClCompile Include="Canvas.cpp" />
-    <ClCompile Include="FlowerBox.cpp" />
-    <ClCompile Include="Frame.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="App.h" />
-    <ClInclude Include="Canvas.h" />
-    <ClInclude Include="FlowerBox.h" />
-    <ClInclude Include="Frame.h" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -5,32 +5,44 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
+    <Filter Include="Code\C3GA">
+      <UniqueIdentifier>{8b80f690-4df9-44cc-a15d-0014702a27bf}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="FlowerBox.cpp">
+    <ClCompile Include="Code\c3ga\c3ga.cpp">
+      <Filter>Code\C3GA</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\c3ga\c3ga_parse_mv.cpp">
+      <Filter>Code\C3GA</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\App.cpp">
       <Filter>Code</Filter>
     </ClCompile>
-    <ClCompile Include="App.cpp">
+    <ClCompile Include="Code\Canvas.cpp">
       <Filter>Code</Filter>
     </ClCompile>
-    <ClCompile Include="Canvas.cpp">
+    <ClCompile Include="Code\FlowerBox.cpp">
       <Filter>Code</Filter>
     </ClCompile>
-    <ClCompile Include="Frame.cpp">
+    <ClCompile Include="Code\Frame.cpp">
       <Filter>Code</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="FlowerBox.h">
+    <ClInclude Include="Code\c3ga\c3ga.h">
+      <Filter>Code\C3GA</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\App.h">
       <Filter>Code</Filter>
     </ClInclude>
-    <ClInclude Include="App.h">
+    <ClInclude Include="Code\Canvas.h">
       <Filter>Code</Filter>
     </ClInclude>
-    <ClInclude Include="Frame.h">
+    <ClInclude Include="Code\FlowerBox.h">
       <Filter>Code</Filter>
     </ClInclude>
-    <ClInclude Include="Canvas.h">
+    <ClInclude Include="Code\Frame.h">
       <Filter>Code</Filter>
     </ClInclude>
   </ItemGroup>
