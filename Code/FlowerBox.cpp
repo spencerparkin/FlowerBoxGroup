@@ -73,7 +73,7 @@ FlowerBox::FlowerBox( void )
 		if( polygon.x <= 0 && polygon.y >= 0 && polygon.z <= 0 )
 			polygon.boundCorners.push_back( CORNER_NX_PY_NZ );
 
-		if( polygon.x >= 0 && polygon.y >= 0 && polygon.z >= 0 )
+		if( polygon.x <= 0 && polygon.y >= 0 && polygon.z >= 0 )
 			polygon.boundCorners.push_back( CORNER_NX_PY_PZ );
 
 		if( polygon.x >= 0 && polygon.y <= 0 && polygon.z <= 0 )
