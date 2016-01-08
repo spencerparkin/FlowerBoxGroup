@@ -88,7 +88,7 @@ FlowerBox::FlowerBox( void )
 		if( polygon.x >= 0 && polygon.y >= 0 && polygon.z >= 0 )
 			polygon.boundCorners.push_back( CORNER_PX_PY_PZ );
 
-		//...we're not done yet...
+		// More binding needs to happen here.  Can't see easy way yet.
 	}
 }
 
@@ -189,9 +189,9 @@ void FlowerBox::ModelFace( const VertexBuffer& polygonVerts, const c3ga::rotorE3
 	c3ga::vectorE3GA indexVector( c3ga::vectorE3GA::coord_e1_e2_e3, x, y, z );
 	indexVector = c3ga::applyUnitVersor( rotor, indexVector );
 
-	polygon.x = int( indexVector.m_e1 );
-	polygon.y = int( indexVector.m_e2 );
-	polygon.z = int( indexVector.m_e3 );
+	polygon.x = int( ::round( indexVector.m_e1 ) );
+	polygon.y = int( ::round( indexVector.m_e2 ) );
+	polygon.z = int( ::round( indexVector.m_e3 ) );
 
 	for( int i = 0; i < ( signed )polygonVerts.size(); i++ )
 	{
