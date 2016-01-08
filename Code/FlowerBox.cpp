@@ -51,6 +51,8 @@ FlowerBox::FlowerBox( void )
 	for( int i = 0; i < CORNER_COUNT; i++ )
 		cornerRotationAngles[i] = 0.0;
 
+	cornerRotationAngles[ CORNER_PX_PY_PZ ] = 45.0;
+
 	ModelFace( RED );
 	ModelFace( ORANGE );
 	ModelFace( GREEN );
@@ -72,7 +74,7 @@ FlowerBox::FlowerBox( void )
 			polygon.boundCorners.push_back( CORNER_NX_PY_NZ );
 
 		if( polygon.x >= 0 && polygon.y >= 0 && polygon.z >= 0 )
-			polygon.boundCorners.push_back( CORNER_PX_PY_PZ );
+			polygon.boundCorners.push_back( CORNER_NX_PY_PZ );
 
 		if( polygon.x >= 0 && polygon.y <= 0 && polygon.z <= 0 )
 			polygon.boundCorners.push_back( CORNER_PX_NY_NZ );
@@ -281,8 +283,12 @@ void FlowerBox::Polygon::Draw( FlowerBox* flowerBox )
 	for( int i = 0; i < ( signed )boundCorners.size(); i++ )
 	{
 		int j = boundCorners[i];
-		c3ga::rotorE3GA cornerRotor = AxisAngleRotor( CornerAxis( Corner(i) ), flowerBox->cornerRotationAngles[j] );
-		rotor = rotor * cornerRotor;
+		double angleDegrees = flowerBox->cornerRotationAngles[j];
+		if( angleDegrees != 0.0 )
+		{
+			c3ga::rotorE3GA cornerRotor = AxisAngleRotor( CornerAxis( Corner(j) ), angleDegrees );
+			rotor = rotor * cornerRotor;
+		}
 	}
 
 	VertexBuffer polygonVerts;
@@ -428,6 +434,8 @@ void FlowerBox::Matrix::Transpose( void )
 
 void FlowerBox::PermuteCorner( Corner corner, Rotate rotate )
 {
+	// TODO: We should actually adjust cornerRotationAngles here to compensate for what we did.
+
 	PushMatrix();
 
 	Matrix rotationMatrix;
