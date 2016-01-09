@@ -609,9 +609,9 @@ void FlowerBox::PermuteCorner( Corner corner, Rotate rotate, bool adjustCornerRo
 	if( adjustCornerRotation )
 	{
 		if( rotate == ROTATE_CCW )
-			cornerRotationAngles[ corner ] += 360.0 / 3.0;
-		else
 			cornerRotationAngles[ corner ] -= 360.0 / 3.0;
+		else
+			cornerRotationAngles[ corner ] += 360.0 / 3.0;
 	}
 
 	PushMatrix();
@@ -629,7 +629,7 @@ void FlowerBox::PermuteCorner( Corner corner, Rotate rotate, bool adjustCornerRo
 			{ 2, 0, 0 }, { 0, 0, 2 }, { 0, 2, 0 }
 		},
 		{
-			{ 2, 0, 1 }, { 0, 1, 2 }, { 1, 2, 2 }
+			{ 2, 0, 1 }, { 0, 1, 2 }, { 1, 2, 0 }
 		},
 		{
 			{ 2, 1, 0 }, { 1, 0, 2 }, { 0, 2, 1 }
@@ -645,7 +645,7 @@ void FlowerBox::PermuteCorner( Corner corner, Rotate rotate, bool adjustCornerRo
 		}
 	};
 
-	int count = ( rotate == ROTATE_CW ? 1 : 2 );
+	int count = ( rotate == ROTATE_CW ? 2 : 1 );
 	for( int j = 0; j < count; j++ )
 	{
 		for( int i = 0; i < 6; i++ )

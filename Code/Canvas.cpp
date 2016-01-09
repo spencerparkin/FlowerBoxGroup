@@ -211,7 +211,7 @@ void Canvas::OnMouseRightDown( wxMouseEvent& event )
 		FlowerBox::Corner corner = flowerBox->ClosestCornerOfFace( flowerBox->selectedFaceId );
 		if( corner != FlowerBox::CORNER_COUNT )
 		{
-			flowerBox->PermuteCorner( corner, FlowerBox::ROTATE_CCW, true );
+			flowerBox->PermuteCorner( corner, FlowerBox::ROTATE_CW, true );
 
 			Refresh();
 		}
