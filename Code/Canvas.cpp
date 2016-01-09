@@ -38,6 +38,7 @@ Canvas::Canvas( wxWindow* parent ) : wxGLCanvas( parent, wxID_ANY, attributeList
 	Bind( wxEVT_LEFT_UP, &Canvas::OnMouseLeftUp, this );
 	Bind( wxEVT_MOTION, &Canvas::OnMouseMotion, this );
 	Bind( wxEVT_MOUSE_CAPTURE_LOST, &Canvas::OnMouseCaptureLost, this );
+	Bind( wxEVT_RIGHT_DOWN, &Canvas::OnMouseRightDown, this );
 }
 
 /*virtual*/ Canvas::~Canvas( void )
@@ -48,11 +49,33 @@ Canvas::Canvas( wxWindow* parent ) : wxGLCanvas( parent, wxID_ANY, attributeList
 
 void Canvas::OnPaint( wxPaintEvent& event )
 {
+	Render( GL_RENDER );
+}
+
+void Canvas::Render( GLenum renderMode )
+{
+	BindContext();
+
+	GLuint* hitBuffer = nullptr;
+	GLuint hitBufferSize = 0;
+
+	if( renderMode == GL_SELECT )
+	{
+		hitBufferSize = 512;
+		hitBuffer = new GLuint[ hitBufferSize ];
+		glSelectBuffer( hitBufferSize, hitBuffer );
+		glRenderMode( GL_SELECT );
+		glInitNames();
+		glPushName(-1);
+	}
+
 	glClearColor( 0.f, 0.f, 0.f, 1.f );
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-
-	// We may or may not want back-face culling too.  Perhaps add a toggle for it.
+	//glEnable( GL_CULL_FACE );
+	glCullFace( GL_BACK );
+	glFrontFace( GL_CCW );
 	glEnable( GL_DEPTH_TEST );
+	glShadeModel( GL_SMOOTH );
 
 	GLint viewport[4];
 	glGetIntegerv( GL_VIEWPORT, viewport );
@@ -60,6 +83,10 @@ void Canvas::OnPaint( wxPaintEvent& event )
 
 	glMatrixMode( GL_PROJECTION );
 	glLoadIdentity();
+
+	if( renderMode == GL_SELECT )
+		gluPickMatrix( GLdouble( mousePos.x ), GLdouble( viewport[3] - mousePos.y - 1 ), 2.0, 2.0, viewport );
+
 	gluPerspective( 60.0, aspectRatio, 0.01, 1000.0 );
 
 	glMatrixMode( GL_MODELVIEW );
@@ -71,13 +98,24 @@ void Canvas::OnPaint( wxPaintEvent& event )
 
 	DrawAxes();
 
-	flowerBox->Draw();
+	flowerBox->Draw( renderMode );
 
 	glPopMatrix();
 
 	glFlush();
 
-	SwapBuffers();
+	if( renderMode == GL_RENDER )
+		SwapBuffers();
+	else if( renderMode == GL_SELECT )
+	{
+		GLint hitCount = glRenderMode( GL_RENDER );
+
+		flowerBox->ProcessHitBuffer( hitBuffer, hitBufferSize, hitCount );
+
+		delete[] hitBuffer;
+		hitBuffer = nullptr;
+		hitBufferSize = 0;
+	}
 }
 
 void Canvas::DrawAxes( void )
@@ -140,6 +178,27 @@ void Canvas::OnSize( wxSizeEvent& event )
 	Refresh();
 }
 
+void Canvas::OnMouseRightDown( wxMouseEvent& event )
+{
+	mousePos = event.GetPosition();
+
+	Render( GL_SELECT );
+
+	if( flowerBox->selectedFaceId != -1 )
+	{
+		FlowerBox::Corner corner = flowerBox->ClosestCornerOfFace( flowerBox->selectedFaceId );
+		if( corner != FlowerBox::CORNER_COUNT )
+		{
+			for( int i = 0; i < FlowerBox::CORNER_COUNT; i++ )
+				flowerBox->cornerRotationAngles[i] = 0.0;
+
+			flowerBox->cornerRotationAngles[ corner ] = 45.0;
+
+			Refresh();
+		}
+	}
+}
+
 void Canvas::OnMouseLeftDown( wxMouseEvent& event )
 {
 	mousePos = event.GetPosition();
@@ -182,6 +241,11 @@ void Canvas::OnMouseMotion( wxMouseEvent& event )
 		xAxis = c3ga::applyUnitVersor( yAxisRotorMouse, xAxis );
 		yAxis = c3ga::applyUnitVersor( yAxisRotorMouse, yAxis );
 		zAxis = c3ga::applyUnitVersor( yAxisRotorMouse, zAxis );
+
+		// Account for accumulated round-off error.
+		xAxis = c3ga::unit( xAxis );
+		yAxis = c3ga::unit( yAxis );
+		zAxis = c3ga::unit( zAxis );
 
 		SetOrientAxes( xAxis, yAxis, zAxis );
 

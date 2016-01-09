@@ -6,6 +6,7 @@
 #include <list>
 #include <vector>
 #include "c3ga/c3ga.h"
+#include <wx/glcanvas.h>
 
 class FlowerBox
 {
@@ -14,7 +15,10 @@ public:
 	FlowerBox( void );
 	~FlowerBox( void );
 
-	void Draw( void );
+	void Draw( GLenum renderMode );
+	void ProcessHitBuffer( GLuint* hitBuffer, GLuint hitBufferSize, GLint hitCount );
+
+	int selectedFaceId;
 
 	enum Color
 	{
@@ -74,6 +78,9 @@ public:
 		CORNER_COUNT,
 	};
 
+	Corner ClosestCornerOfFace( int faceId );
+	Face* FindFace( int faceId, int& x, int& y, int& z );
+
 	bool CalcMatrixForCorner( Corner corner, Matrix& rotationMatrix );
 	void PermuteCorner( Corner corner, Rotate rotate );
 
@@ -84,7 +91,7 @@ public:
 	{
 	public:
 
-		void Draw( FlowerBox* flowerBox );
+		void Draw( FlowerBox* flowerBox, GLenum renderMode );
 
 		int x, y, z;
 

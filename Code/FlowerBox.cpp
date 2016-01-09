@@ -6,6 +6,8 @@
 
 FlowerBox::FlowerBox( void )
 {
+	selectedFaceId = -1;
+
 	int id = 0;
 
 	for( int x = -2; x <= 2; x++ )
@@ -51,8 +53,6 @@ FlowerBox::FlowerBox( void )
 	for( int i = 0; i < CORNER_COUNT; i++ )
 		cornerRotationAngles[i] = 0.0;
 
-	cornerRotationAngles[ CORNER_NX_NY_NZ ] = 45.0;
-
 	ModelFace( RED );
 	ModelFace( ORANGE );
 	ModelFace( GREEN );
@@ -92,7 +92,7 @@ FlowerBox::FlowerBox( void )
 		{
 			Matrix rotationMatrix;
 			CalcMatrixForCorner( Corner(j), rotationMatrix );
-			rotationMatrix.Transpose();
+			//rotationMatrix.Transpose();
 			PushMatrix( &rotationMatrix );
 
 			int x, y, z;
@@ -271,30 +271,90 @@ int FlowerBox::GetIndexForVertex( const c3ga::vectorE3GA& vertex )
 	return axis;
 }
 
-void FlowerBox::Draw( void )
+void FlowerBox::Draw( GLenum renderMode )
 {
 	int count = ( signed )polygonArray.size();
 	for( int i = 0; i < count; i++ )
 	{
 		Polygon& polygon = polygonArray[i];
-		polygon.Draw( this );
+		polygon.Draw( this, renderMode );
 	}
 }
 
-void FlowerBox::Polygon::Draw( FlowerBox* flowerBox )
+void FlowerBox::ProcessHitBuffer( GLuint* hitBuffer, GLuint hitBufferSize, GLint hitCount )
+{
+	selectedFaceId = -1;
+
+	// Notice that if "hitCount" is -1, which indicates an
+	// over-flow of the buffer, we don't process anything.
+	unsigned int* hitRecord = hitBuffer;
+	float smallestZ = 999.f;
+	for( int hit = 0; hit < hitCount; hit++ )
+	{
+		unsigned int nameCount = hitRecord[0];
+		wxASSERT( nameCount == 1 );
+		if( nameCount == 1 )
+		{
+			float minZ = float( hitRecord[1] ) / float( 0x7FFFFFFF );
+			if( minZ < smallestZ )
+			{
+				smallestZ = minZ;
+				selectedFaceId = ( int )hitRecord[3];
+			}
+		}
+
+		hitRecord += 3 + nameCount;
+	}
+}
+
+FlowerBox::Corner FlowerBox::ClosestCornerOfFace( int faceId )
+{
+	int x, y, z;
+	Face* face = FindFace( faceId, x, y, z );
+	if( !face )
+		return CORNER_COUNT;
+
+	if( x < 0 && y < 0 && z < 0 )	return CORNER_NX_NY_NZ;
+	if( x < 0 && y < 0 && z > 0 )	return CORNER_NX_NY_PZ;
+	if( x < 0 && y > 0 && z < 0 )	return CORNER_NX_PY_NZ;
+	if( x < 0 && y > 0 && z > 0 )	return CORNER_NX_PY_PZ;
+	if( x > 0 && y < 0 && z < 0 )	return CORNER_PX_NY_NZ;
+	if( x > 0 && y < 0 && z > 0 )	return CORNER_PX_NY_PZ;
+	if( x > 0 && y > 0 && z < 0 )	return CORNER_PX_PY_NZ;
+	if( x > 0 && y > 0 && z > 0 )	return CORNER_PX_PY_PZ;
+	
+	return CORNER_COUNT;
+}
+
+FlowerBox::Face* FlowerBox::FindFace( int faceId, int& x, int& y, int& z )
+{
+	for( x = 0; x < 5; x++ )
+	{
+		for( y = 0; y < 5; y++ )
+		{
+			for( z = 0; z < 5; z++ )
+			{
+				Face* face = &faceMatrix[x][y][z];
+				if( face->id == faceId )
+				{
+					x -= 2;
+					y -= 2;
+					z -= 2;
+					return face;
+				}
+			}
+		}
+	}
+
+	return nullptr;
+}
+
+void FlowerBox::Polygon::Draw( FlowerBox* flowerBox, GLenum renderMode )
 {
 	Face& face = flowerBox->faceMatrix[ x + 2 ][ y + 2 ][ z + 2 ];
 
-	switch( face.color )
-	{
-		case WHITE:		glColor3f( 1.f, 1.f, 1.f );		break;
-		case YELLOW:	glColor3f( 1.f, 1.f, 0.f );		break;
-		case RED:		glColor3f( 1.f, 0.f, 0.f );		break;
-		case ORANGE:	glColor3f( 1.f, 0.6f, 0.f );	break;
-		case BLUE:		glColor3f( 0.f, 0.f, 1.f );		break;
-		case GREEN:		glColor3f( 0.f, 1.f, 0.f );		break;
-		default:		glColor3f( 0.5f, 0.5f, 0.5f );	break;
-	}
+	if( renderMode == GL_SELECT )
+		glLoadName( face.id );
 
 	c3ga::rotorE3GA rotor( c3ga::rotorE3GA::coord_scalar_e1e2_e2e3_e3e1, 1.0, 0.0, 0.0, 0.0 );
 
@@ -315,6 +375,9 @@ void FlowerBox::Polygon::Draw( FlowerBox* flowerBox )
 	VertexBuffer polygonVerts;
 	c3ga::vectorE3GA center( c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 0.0, 0.0 );
 
+	glColor3f( 0.f, 0.f, 0.f );
+	//glBegin( GL_POLYGON );
+
 	for( int i = 0; i < ( signed )indexBuffer.size(); i++ )
 	{
 		int j = indexBuffer[i];
@@ -322,9 +385,28 @@ void FlowerBox::Polygon::Draw( FlowerBox* flowerBox )
 		vertex = c3ga::applyUnitVersor( rotor, vertex );
 		polygonVerts.push_back( vertex );
 		center = center + vertex;
+
+		//glVertex3f( vertex.m_e1, vertex.m_e2, vertex.m_e3 );
 	}
 
+	//glEnd();
+
 	center = center * ( 1.0 / double( indexBuffer.size() ) );
+
+	switch( face.color )
+	{
+		case WHITE:		glColor3f( 1.f, 1.f, 1.f );		break;
+		case YELLOW:	glColor3f( 1.f, 1.f, 0.f );		break;
+		case RED:		glColor3f( 1.f, 0.f, 0.f );		break;
+		case ORANGE:	glColor3f( 1.f, 0.6f, 0.f );	break;
+		case BLUE:		glColor3f( 0.f, 0.f, 1.f );		break;
+		case GREEN:		glColor3f( 0.f, 1.f, 0.f );		break;
+		default:		glColor3f( 0.5f, 0.5f, 0.5f );	break;
+	}
+
+	//wxASSERT( polgyonVerts.size() > 1 );
+	c3ga::vectorE3GA normal = c3ga::op( polygonVerts[0] - center, polygonVerts[1] - center ) * c3ga::I3;
+	normal = c3ga::unit( normal );
 
 	glBegin( GL_POLYGON );
 
@@ -332,6 +414,7 @@ void FlowerBox::Polygon::Draw( FlowerBox* flowerBox )
 	{
 		c3ga::vectorE3GA vertex = polygonVerts[i];
 		vertex = center + ( vertex - center ) * 0.9;
+		//vertex = vertex + normal * -0.02;
 		glVertex3f( vertex.m_e1, vertex.m_e2, vertex.m_e3 );
 	}
 
@@ -504,9 +587,9 @@ bool FlowerBox::CalcMatrixForCorner( Corner corner, Matrix& rotationMatrix )
 		}
 		case CORNER_PX_PY_NZ:
 		{
-			rotationMatrix.SetXAxis( -1, 0, 0 );
-			rotationMatrix.SetYAxis( 0, -1, 0 );
-			rotationMatrix.SetZAxis( 0, 0, 1 );
+			rotationMatrix.SetXAxis( 1, 0, 0 );
+			rotationMatrix.SetYAxis( 0, 0, 1 );
+			rotationMatrix.SetZAxis( 0, -1, 0 );
 			return true;
 		}
 		case CORNER_PX_PY_PZ:
