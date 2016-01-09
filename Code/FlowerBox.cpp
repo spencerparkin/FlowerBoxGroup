@@ -566,9 +566,9 @@ bool FlowerBox::CalcMatrixForCorner( Corner corner, Matrix& rotationMatrix )
 		}
 		case CORNER_NX_PY_PZ:
 		{
-			rotationMatrix.SetXAxis( 0, 0, -1 );
-			rotationMatrix.SetYAxis( 0, 1, 0 );
-			rotationMatrix.SetZAxis( 1, 0, 0 );
+			rotationMatrix.SetXAxis( 0, -1, 0 );
+			rotationMatrix.SetYAxis( 1, 0, 0 );
+			rotationMatrix.SetZAxis( 0, 0, 1 );
 			return true;
 		}
 		case CORNER_PX_NY_NZ:
@@ -619,7 +619,7 @@ void FlowerBox::PermuteCorner( Corner corner, Rotate rotate, bool adjustCornerRo
 	Matrix rotationMatrix;
 	CalcMatrixForCorner( corner, rotationMatrix );
 
-	//rotationMatrix.Transpose();
+	rotationMatrix.Transpose();
 
 	MulMatrix( rotationMatrix );
 
