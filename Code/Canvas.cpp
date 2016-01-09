@@ -168,6 +168,28 @@ void Canvas::SetOrientAxes( const c3ga::vectorE3GA& xAxis, const c3ga::vectorE3G
 	orientMatrix[10] = zAxis.m_e3;
 }
 
+void Canvas::Animate( void )
+{
+	bool refreshNeeded = false;
+
+	for( int i = 0; i < FlowerBox::CORNER_COUNT; i++ )
+	{
+		if( flowerBox->cornerRotationAngles[i] != 0.0 )
+		{
+			refreshNeeded = true;
+
+			double eps = 1e-5;
+			if( fabs( flowerBox->cornerRotationAngles[i] ) < eps )
+				flowerBox->cornerRotationAngles[i] = 0.0;
+			else
+				flowerBox->cornerRotationAngles[i] *= 0.9;
+		}
+	}
+
+	if( refreshNeeded )
+		Refresh();
+}
+
 void Canvas::OnSize( wxSizeEvent& event )
 {
 	BindContext();
@@ -189,10 +211,7 @@ void Canvas::OnMouseRightDown( wxMouseEvent& event )
 		FlowerBox::Corner corner = flowerBox->ClosestCornerOfFace( flowerBox->selectedFaceId );
 		if( corner != FlowerBox::CORNER_COUNT )
 		{
-			for( int i = 0; i < FlowerBox::CORNER_COUNT; i++ )
-				flowerBox->cornerRotationAngles[i] = 0.0;
-
-			flowerBox->cornerRotationAngles[ corner ] = 45.0;
+			flowerBox->PermuteCorner( corner, FlowerBox::ROTATE_CCW, true );
 
 			Refresh();
 		}

@@ -21,6 +21,7 @@ public:
 	void OnMouseRightDown( wxMouseEvent& event );
 	void OnMouseCaptureLost( wxMouseCaptureLostEvent& event );
 
+	void Animate( void );
 	void BindContext( void );
 	void DrawAxes( void );
 	void Render( GLenum renderMode );

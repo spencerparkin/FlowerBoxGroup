@@ -604,17 +604,22 @@ bool FlowerBox::CalcMatrixForCorner( Corner corner, Matrix& rotationMatrix )
 	return false;
 }
 
-void FlowerBox::PermuteCorner( Corner corner, Rotate rotate )
+void FlowerBox::PermuteCorner( Corner corner, Rotate rotate, bool adjustCornerRotation )
 {
-	// TODO: We should actually adjust cornerRotationAngles here to compensate for what we did.
+	if( adjustCornerRotation )
+	{
+		if( rotate == ROTATE_CCW )
+			cornerRotationAngles[ corner ] += 360.0 / 3.0;
+		else
+			cornerRotationAngles[ corner ] -= 360.0 / 3.0;
+	}
 
 	PushMatrix();
 
 	Matrix rotationMatrix;
 	CalcMatrixForCorner( corner, rotationMatrix );
 
-	// We actually want the inverse (which in our case, is the transpose.)
-	rotationMatrix.Transpose();
+	//rotationMatrix.Transpose();
 
 	MulMatrix( rotationMatrix );
 

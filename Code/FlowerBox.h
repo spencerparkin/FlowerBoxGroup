@@ -82,7 +82,7 @@ public:
 	Face* FindFace( int faceId, int& x, int& y, int& z );
 
 	bool CalcMatrixForCorner( Corner corner, Matrix& rotationMatrix );
-	void PermuteCorner( Corner corner, Rotate rotate );
+	void PermuteCorner( Corner corner, Rotate rotate, bool adjustCornerRotation );
 
 	typedef std::vector< c3ga::vectorE3GA > VertexBuffer;
 	typedef std::vector< int > IndexBuffer;
