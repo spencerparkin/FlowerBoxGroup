@@ -74,6 +74,7 @@ public:
 		CORNER_COUNT,
 	};
 
+	bool CalcMatrixForCorner( Corner corner, Matrix& rotationMatrix );
 	void PermuteCorner( Corner corner, Rotate rotate );
 
 	typedef std::vector< c3ga::vectorE3GA > VertexBuffer;

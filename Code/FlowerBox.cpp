@@ -51,7 +51,7 @@ FlowerBox::FlowerBox( void )
 	for( int i = 0; i < CORNER_COUNT; i++ )
 		cornerRotationAngles[i] = 0.0;
 
-	cornerRotationAngles[ CORNER_PX_PY_PZ ] = 45.0;
+	cornerRotationAngles[ CORNER_NX_NY_NZ ] = 45.0;
 
 	ModelFace( RED );
 	ModelFace( ORANGE );
@@ -88,7 +88,28 @@ FlowerBox::FlowerBox( void )
 		if( polygon.x >= 0 && polygon.y >= 0 && polygon.z >= 0 )
 			polygon.boundCorners.push_back( CORNER_PX_PY_PZ );
 
-		// More binding needs to happen here.  Can't see easy way yet.
+		for( int j = 0; j < CORNER_COUNT; j++ )
+		{
+			Matrix rotationMatrix;
+			CalcMatrixForCorner( Corner(j), rotationMatrix );
+			rotationMatrix.Transpose();
+			PushMatrix( &rotationMatrix );
+
+			int x, y, z;
+			Transform( polygon.x, polygon.y, polygon.z, x, y, z );
+
+			if( ( x == 2 && y == -1 && z == 1 ) ||
+				( x == 2 && y == 1 && z == -1 ) ||
+				( x == -1 && y == 2 && z == 1 ) ||
+				( x == 1 && y == 2 && z == -1 ) ||
+				( x == 1 && y == -1 && z == 2 ) ||
+				( x == -1 && y == 1 && z == 2 ) )
+			{
+				polygon.boundCorners.push_back( Corner(j) );
+			}
+
+			PopMatrix();
+		}
 	}
 }
 
@@ -349,6 +370,7 @@ void FlowerBox::LoadMatrix( const Matrix& matrix )
 		return;
 
 	MatrixList::iterator iter = matrixStack.end();
+	iter--;
 	*iter = matrix;
 }
 
@@ -357,7 +379,7 @@ void FlowerBox::MulMatrix( const Matrix& matrix )
 	if( matrixStack.size() == 0 )
 		return;
 
-	Matrix topMatrix = *matrixStack.end();
+	Matrix topMatrix = matrixStack.back();
 
 	Matrix product;
 
@@ -380,7 +402,7 @@ void FlowerBox::Transform( int x, int y, int z, int& tx, int& ty, int& tz )
 	if( matrixStack.size() == 0 )
 		return;
 
-	const Matrix& topMatrix = *matrixStack.end();
+	const Matrix& topMatrix = matrixStack.back();
 
 	tx =
 		topMatrix.ele[0][0] * x +
@@ -432,14 +454,8 @@ void FlowerBox::Matrix::Transpose( void )
 	}
 }
 
-void FlowerBox::PermuteCorner( Corner corner, Rotate rotate )
+bool FlowerBox::CalcMatrixForCorner( Corner corner, Matrix& rotationMatrix )
 {
-	// TODO: We should actually adjust cornerRotationAngles here to compensate for what we did.
-
-	PushMatrix();
-
-	Matrix rotationMatrix;
-
 	// We must position the corner in the postive octant.
 	// The orientation of the corner doesn't matter.
 	switch( corner )
@@ -449,58 +465,70 @@ void FlowerBox::PermuteCorner( Corner corner, Rotate rotate )
 			rotationMatrix.SetXAxis( -1, 0, 0 );
 			rotationMatrix.SetYAxis( 0, 0, -1 );
 			rotationMatrix.SetZAxis( 0, -1, 0 );
-			break;
+			return true;
 		}
 		case CORNER_NX_NY_PZ:
 		{
 			rotationMatrix.SetXAxis( -1, 0, 0 );
 			rotationMatrix.SetYAxis( 0, -1, 0 );
 			rotationMatrix.SetZAxis( 0, 0, 1 );
-			break;
+			return true;
 		}
 		case CORNER_NX_PY_NZ:
 		{
 			rotationMatrix.SetXAxis( -1, 0, 0 );
 			rotationMatrix.SetYAxis( 0, 1, 0 );
 			rotationMatrix.SetZAxis( 0, 0, -1 );
-			break;
+			return true;
 		}
 		case CORNER_NX_PY_PZ:
 		{
 			rotationMatrix.SetXAxis( 0, 0, -1 );
 			rotationMatrix.SetYAxis( 0, 1, 0 );
 			rotationMatrix.SetZAxis( 1, 0, 0 );
-			break;
+			return true;
 		}
 		case CORNER_PX_NY_NZ:
 		{
 			rotationMatrix.SetXAxis( 1, 0, 0 );
 			rotationMatrix.SetYAxis( 0, -1, 0 );
 			rotationMatrix.SetZAxis( 0, 0, -1 );
-			break;
+			return true;
 		}
 		case CORNER_PX_NY_PZ:
 		{
-			rotationMatrix.SetXAxis( 0, 1, 0 );
+			rotationMatrix.SetXAxis( 1, 0, 0 );
 			rotationMatrix.SetYAxis( 0, 0, -1 );
-			rotationMatrix.SetZAxis( 0, 0, 1 );
-			break;
+			rotationMatrix.SetZAxis( 0, 1, 0 );
+			return true;
 		}
 		case CORNER_PX_PY_NZ:
+		{
+			rotationMatrix.SetXAxis( -1, 0, 0 );
+			rotationMatrix.SetYAxis( 0, -1, 0 );
+			rotationMatrix.SetZAxis( 0, 0, 1 );
+			return true;
+		}
+		case CORNER_PX_PY_PZ:
 		{
 			rotationMatrix.SetXAxis( 1, 0, 0 );
 			rotationMatrix.SetYAxis( 0, 1, 0 );
 			rotationMatrix.SetZAxis( 0, 0, 1 );
-			break;
-		}
-		case CORNER_PX_PY_PZ:
-		{
-			rotationMatrix.SetXAxis( 0, 0, 1 );
-			rotationMatrix.SetYAxis( 0, 1, 0 );
-			rotationMatrix.SetZAxis( -1, 0, 0 );
-			break;
+			return true;
 		}
 	}
+
+	return false;
+}
+
+void FlowerBox::PermuteCorner( Corner corner, Rotate rotate )
+{
+	// TODO: We should actually adjust cornerRotationAngles here to compensate for what we did.
+
+	PushMatrix();
+
+	Matrix rotationMatrix;
+	CalcMatrixForCorner( corner, rotationMatrix );
 
 	// We actually want the inverse (which in our case, is the transpose.)
 	rotationMatrix.Transpose();
