@@ -29,6 +29,15 @@ public:
 	void GetOrientAxes( c3ga::vectorE3GA& xAxis, c3ga::vectorE3GA& yAxis, c3ga::vectorE3GA& zAxis );
 	void SetOrientAxes( const c3ga::vectorE3GA& xAxis, const c3ga::vectorE3GA& yAxis, const c3ga::vectorE3GA& zAxis );
 
+	struct Move
+	{
+		FlowerBox::Corner corner;
+		FlowerBox::Rotate rotate;
+	};
+
+	typedef std::list< Move > MoveSequence;
+	MoveSequence moveSequence;
+
 	static int attributeList[];
 	wxGLContext* context;
 	GLfloat orientMatrix[16];

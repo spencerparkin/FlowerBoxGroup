@@ -80,7 +80,9 @@ public:
 
 	Corner ClosestCornerOfFace( int faceId );
 	Face* FindFace( int faceId, int& x, int& y, int& z );
-
+	bool Animate( float lerp );
+	bool StillAnimating( void );
+	void Snap( void );
 	bool CalcMatrixForCorner( Corner corner, Matrix& rotationMatrix );
 	void PermuteCorner( Corner corner, Rotate rotate, bool adjustCornerRotation );
 

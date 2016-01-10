@@ -71,7 +71,7 @@ void Canvas::Render( GLenum renderMode )
 
 	glClearColor( 0.f, 0.f, 0.f, 1.f );
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-	//glEnable( GL_CULL_FACE );
+	glEnable( GL_CULL_FACE );
 	glCullFace( GL_BACK );
 	glFrontFace( GL_CCW );
 	glEnable( GL_DEPTH_TEST );
@@ -170,24 +170,19 @@ void Canvas::SetOrientAxes( const c3ga::vectorE3GA& xAxis, const c3ga::vectorE3G
 
 void Canvas::Animate( void )
 {
-	bool refreshNeeded = false;
-
-	for( int i = 0; i < FlowerBox::CORNER_COUNT; i++ )
+	if( flowerBox->StillAnimating() )
 	{
-		if( flowerBox->cornerRotationAngles[i] != 0.0 )
-		{
-			refreshNeeded = true;
-
-			double eps = 1e-5;
-			if( fabs( flowerBox->cornerRotationAngles[i] ) < eps )
-				flowerBox->cornerRotationAngles[i] = 0.0;
-			else
-				flowerBox->cornerRotationAngles[i] *= 0.9;
-		}
+		if( flowerBox->Animate( 0.9f ) )
+			Refresh();
 	}
+	else if( moveSequence.size() > 0 )
+	{
+		MoveSequence::iterator iter = moveSequence.begin();
+		Move move = *iter;
+		moveSequence.erase( iter );
 
-	if( refreshNeeded )
-		Refresh();
+		flowerBox->PermuteCorner( move.corner, move.rotate, true );
+	}
 }
 
 void Canvas::OnSize( wxSizeEvent& event )
@@ -211,9 +206,17 @@ void Canvas::OnMouseRightDown( wxMouseEvent& event )
 		FlowerBox::Corner corner = flowerBox->ClosestCornerOfFace( flowerBox->selectedFaceId );
 		if( corner != FlowerBox::CORNER_COUNT )
 		{
-			flowerBox->PermuteCorner( corner, FlowerBox::ROTATE_CW, true );
+			flowerBox->Snap();
 
-			Refresh();
+			Move move;
+			move.corner = corner;
+			
+			if( event.AltDown() )
+				move.rotate = FlowerBox::ROTATE_CCW;
+			else
+				move.rotate = FlowerBox::ROTATE_CW;
+
+			moveSequence.push_back( move );
 		}
 	}
 }

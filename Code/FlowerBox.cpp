@@ -50,8 +50,7 @@ FlowerBox::FlowerBox( void )
 		}
 	}
 
-	for( int i = 0; i < CORNER_COUNT; i++ )
-		cornerRotationAngles[i] = 0.0;
+	Snap();
 
 	ModelFace( RED );
 	ModelFace( ORANGE );
@@ -600,6 +599,42 @@ bool FlowerBox::CalcMatrixForCorner( Corner corner, Matrix& rotationMatrix )
 			return true;
 		}
 	}
+
+	return false;
+}
+
+bool FlowerBox::Animate( float lerp )
+{
+	bool refreshNeeded = false;
+
+	for( int i = 0; i < CORNER_COUNT; i++ )
+	{
+		if( cornerRotationAngles[i] != 0.0 )
+		{
+			refreshNeeded = true;
+
+			double eps = 1e-1;
+			if( fabs( cornerRotationAngles[i] ) < eps )
+				cornerRotationAngles[i] = 0.0;
+			else
+				cornerRotationAngles[i] *= lerp;
+		}
+	}
+
+	return refreshNeeded;
+}
+
+void FlowerBox::Snap( void )
+{
+	for( int i = 0; i < CORNER_COUNT; i++ )
+		cornerRotationAngles[i] = 0.0;
+}
+
+bool FlowerBox::StillAnimating( void )
+{
+	for( int i = 0; i < CORNER_COUNT; i++ )
+		if( cornerRotationAngles[i] != 0.0 )
+			return true;
 
 	return false;
 }
