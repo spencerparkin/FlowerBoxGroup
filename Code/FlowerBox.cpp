@@ -39,9 +39,9 @@ FlowerBox::FlowerBox( void )
 				if( ( -2 < x && x < 2 ) && ( -2 < z && z < 2 ) )
 				{
 					if( y == -2 )
-						face->color = WHITE;
-					else if( y == 2 )
 						face->color = YELLOW;
+					else if( y == 2 )
+						face->color = WHITE;
 				}
 
 				if( face->color )
