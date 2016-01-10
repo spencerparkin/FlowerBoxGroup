@@ -34,6 +34,7 @@ Canvas::Canvas( wxWindow* parent ) : wxGLCanvas( parent, wxID_ANY, attributeList
 
 	Bind( wxEVT_PAINT, &Canvas::OnPaint, this );
 	Bind( wxEVT_SIZE, &Canvas::OnSize, this );
+	Bind( wxEVT_MIDDLE_DOWN, &Canvas::OnMouseMiddleDown, this );
 	Bind( wxEVT_LEFT_DOWN, &Canvas::OnMouseLeftDown, this );
 	Bind( wxEVT_LEFT_UP, &Canvas::OnMouseLeftUp, this );
 	Bind( wxEVT_MOTION, &Canvas::OnMouseMotion, this );
@@ -193,6 +194,14 @@ void Canvas::OnSize( wxSizeEvent& event )
 	glViewport( 0, 0, size.GetWidth(), size.GetHeight() );
 
 	Refresh();
+}
+
+void Canvas::OnMouseMiddleDown( wxMouseEvent& event )
+{
+	moveSequence.push_back( Move( FlowerBox::CORNER_PX_PY_PZ, FlowerBox::ROTATE_CCW ) );
+	moveSequence.push_back( Move( FlowerBox::CORNER_NX_PY_PZ, FlowerBox::ROTATE_CW ) );
+	moveSequence.push_back( Move( FlowerBox::CORNER_PX_PY_PZ, FlowerBox::ROTATE_CW ) );
+	moveSequence.push_back( Move( FlowerBox::CORNER_NX_PY_PZ, FlowerBox::ROTATE_CCW ) );
 }
 
 void Canvas::OnMouseRightDown( wxMouseEvent& event )

@@ -19,6 +19,7 @@ public:
 	void OnMouseLeftUp( wxMouseEvent& event );
 	void OnMouseMotion( wxMouseEvent& event );
 	void OnMouseRightDown( wxMouseEvent& event );
+	void OnMouseMiddleDown( wxMouseEvent& event );
 	void OnMouseCaptureLost( wxMouseCaptureLostEvent& event );
 
 	void Animate( void );
@@ -31,6 +32,13 @@ public:
 
 	struct Move
 	{
+		Move( void ) {}
+		Move( FlowerBox::Corner corner, FlowerBox::Rotate rotate )
+		{
+			this->corner = corner;
+			this->rotate = rotate;
+		}
+
 		FlowerBox::Corner corner;
 		FlowerBox::Rotate rotate;
 	};
