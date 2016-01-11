@@ -269,7 +269,9 @@ void Canvas::OnMouseLeftDown( wxMouseEvent& event )
 
 void Canvas::OnMouseLeftUp( wxMouseEvent& event )
 {
-	ReleaseMouse();
+	if( HasCapture() )
+		ReleaseMouse();
+
 	rotatingBoxWithMouse = false;
 }
 
