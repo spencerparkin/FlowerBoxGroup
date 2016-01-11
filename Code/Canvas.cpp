@@ -232,6 +232,39 @@ void Canvas::OnMouseMiddleDown( wxMouseEvent& event )
 	moveSequence.push_back( Move( FlowerBox::CORNER_PX_PY_PZ, FlowerBox::ROTATE_CW ) );
 	moveSequence.push_back( Move( FlowerBox::CORNER_NX_PY_NZ, FlowerBox::ROTATE_CCW ) );
 	moveSequence.push_back( Move( FlowerBox::CORNER_PX_PY_PZ, FlowerBox::ROTATE_CCW ) );
+
+	wxString seqString = PrintSequence( moveSequence );
+	seqString = "";
+}
+
+/*static*/ wxString Canvas::PrintSequence( const MoveSequence& moveSequence )
+{
+	wxString seqString;
+
+	MoveSequence::const_iterator iter = moveSequence.begin();
+	while( iter != moveSequence.end() )
+	{
+		const Move& move = *iter;
+
+		wxString cornerStr = "(?)";
+
+		switch( move.corner )
+		{
+			case FlowerBox::CORNER_NX_PY_PZ:	cornerStr = "X";	break;
+			case FlowerBox::CORNER_PX_PY_PZ:	cornerStr = "Y";	break;
+			case FlowerBox::CORNER_PX_PY_NZ:	cornerStr = "Z";	break;
+			case FlowerBox::CORNER_NX_PY_NZ:	cornerStr = "W";	break;
+		}
+
+		if( move.rotate == FlowerBox::ROTATE_CCW )
+			cornerStr += "i";
+
+		seqString += cornerStr + ",";
+
+		iter++;
+	}
+
+	return seqString;
 }
 
 void Canvas::OnMouseRightDown( wxMouseEvent& event )

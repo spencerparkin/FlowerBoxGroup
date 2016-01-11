@@ -46,6 +46,8 @@ public:
 	typedef std::list< Move > MoveSequence;
 	MoveSequence moveSequence;
 
+	static wxString PrintSequence( const MoveSequence& moveSequence );
+
 	static int attributeList[];
 	wxGLContext* context;
 	GLfloat orientMatrix[16];
