@@ -10,6 +10,7 @@ FlowerBox::FlowerBox( void )
 
 	int id = 0;
 
+	// TODO: Once I finally get my physical cube solved again, check it against this.
 	for( int x = -2; x <= 2; x++ )
 	{
 		for( int y = -2; y <= 2; y++ )
@@ -23,9 +24,9 @@ FlowerBox::FlowerBox( void )
 				if( ( -2 < y && y < 2 ) && ( -2 < z && z < 2 ) )
 				{
 					if( x == -2 )
-						face->color = RED;
-					else if( x == 2 )
 						face->color = ORANGE;
+					else if( x == 2 )
+						face->color = RED;
 				}
 
 				if( ( -2 < y && y < 2 ) && ( -2 < x && x < 2 ) )
