@@ -97,7 +97,7 @@ void Canvas::Render( GLenum renderMode )
 	glPushMatrix();
 	glMultMatrixf( orientMatrix );
 
-	DrawAxes();
+	//DrawAxes();
 
 	flowerBox->Draw( renderMode );
 
@@ -198,6 +198,9 @@ void Canvas::OnSize( wxSizeEvent& event )
 
 void Canvas::OnMouseMiddleDown( wxMouseEvent& event )
 {
+	// first 12 = second 12.  Does this element have order 3?
+	// if so, we can compress further!
+
 	moveSequence.push_back( Move( FlowerBox::CORNER_PX_PY_NZ, FlowerBox::ROTATE_CW ) );
 	moveSequence.push_back( Move( FlowerBox::CORNER_NX_PY_PZ, FlowerBox::ROTATE_CW ) );
 	moveSequence.push_back( Move( FlowerBox::CORNER_PX_PY_NZ, FlowerBox::ROTATE_CCW ) );
