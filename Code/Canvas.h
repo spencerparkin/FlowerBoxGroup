@@ -30,6 +30,8 @@ public:
 	void GetOrientAxes( c3ga::vectorE3GA& xAxis, c3ga::vectorE3GA& yAxis, c3ga::vectorE3GA& zAxis );
 	void SetOrientAxes( const c3ga::vectorE3GA& xAxis, const c3ga::vectorE3GA& yAxis, const c3ga::vectorE3GA& zAxis );
 
+	static int RandomInt( int min, int max );
+
 	struct Move
 	{
 		Move( void ) {}
@@ -37,6 +39,12 @@ public:
 		{
 			this->corner = corner;
 			this->rotate = rotate;
+		}
+
+		void Random( void )
+		{
+			corner = FlowerBox::Corner( RandomInt( 0, 100 ) % FlowerBox::CORNER_COUNT );
+			rotate = ( RandomInt( 0, 100 ) >= 50 ) ? FlowerBox::ROTATE_CW : FlowerBox::ROTATE_CCW;
 		}
 
 		FlowerBox::Corner corner;
@@ -57,6 +65,9 @@ public:
 	FlowerBox* flowerBox;
 	bool rotatingBoxWithMouse;
 	wxPoint mousePos;
+
+	void DesperateSearch( void );
+	void FlushSequence( MoveSequence& historySequence );
 };
 
 // Canvas.h

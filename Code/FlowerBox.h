@@ -8,6 +8,8 @@
 #include "c3ga/c3ga.h"
 #include <wx/glcanvas.h>
 
+double round( double r );
+
 class FlowerBox
 {
 public:

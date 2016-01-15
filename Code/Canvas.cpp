@@ -328,32 +328,25 @@ void Canvas::OnMouseMiddleDown( wxMouseEvent& event )
 
 #endif
 
+	// Parity fix!
 #if 1
 
-	moveSequence.push_back( Move( FlowerBox::CORNER_NX_PY_NZ, FlowerBox::ROTATE_CW ) );
 	moveSequence.push_back( Move( FlowerBox::CORNER_PX_PY_NZ, FlowerBox::ROTATE_CW ) );
 	moveSequence.push_back( Move( FlowerBox::CORNER_PX_PY_PZ, FlowerBox::ROTATE_CW ) );
 
-	moveSequence.push_back( Move( FlowerBox::CORNER_NX_PY_NZ, FlowerBox::ROTATE_CCW ) );
-	moveSequence.push_back( Move( FlowerBox::CORNER_PX_PY_NZ, FlowerBox::ROTATE_CCW ) );
-	moveSequence.push_back( Move( FlowerBox::CORNER_PX_PY_PZ, FlowerBox::ROTATE_CCW ) );
-
-	moveSequence.push_back( Move( FlowerBox::CORNER_PX_NY_PZ, FlowerBox::ROTATE_CCW ) );
-
 	moveSequence.push_back( Move( FlowerBox::CORNER_PX_PY_PZ, FlowerBox::ROTATE_CW ) );
-	moveSequence.push_back( Move( FlowerBox::CORNER_PX_PY_NZ, FlowerBox::ROTATE_CW ) );
 	moveSequence.push_back( Move( FlowerBox::CORNER_NX_PY_NZ, FlowerBox::ROTATE_CW ) );
 
-	moveSequence.push_back( Move( FlowerBox::CORNER_PX_PY_PZ, FlowerBox::ROTATE_CCW ) );
-	moveSequence.push_back( Move( FlowerBox::CORNER_PX_PY_NZ, FlowerBox::ROTATE_CCW ) );
-	moveSequence.push_back( Move( FlowerBox::CORNER_NX_PY_NZ, FlowerBox::ROTATE_CCW ) );
-	
+	moveSequence.push_back( Move( FlowerBox::CORNER_PX_PY_PZ, FlowerBox::ROTATE_CW ) );
 	moveSequence.push_back( Move( FlowerBox::CORNER_PX_NY_PZ, FlowerBox::ROTATE_CW ) );
+	moveSequence.push_back( Move( FlowerBox::CORNER_NX_PY_NZ, FlowerBox::ROTATE_CCW ) );
+	
+	moveSequence.push_back( Move( FlowerBox::CORNER_NX_PY_NZ, FlowerBox::ROTATE_CW ) );
+	moveSequence.push_back( Move( FlowerBox::CORNER_NX_PY_NZ, FlowerBox::ROTATE_CCW ) );
 
+	moveSequence.push_back( Move( FlowerBox::CORNER_NX_NY_NZ, FlowerBox::ROTATE_CW ) );
 	
 	
-	
-
 #endif
 
 	wxString seqString = PrintSequence( moveSequence );
@@ -488,6 +481,190 @@ void Canvas::BindContext( void )
 		context = new wxGLContext( this );
 
 	SetCurrent( *context );
+}
+
+/*static*/ int Canvas::RandomInt( int min, int max )
+{
+	float r = ( float )rand();
+	float r_max = ( float )RAND_MAX;
+	float t = r / r_max;
+	float a = ( float )min;
+	float b = ( float )max;
+	float c = a + ( b - a ) * t;
+	c = round( c );
+	int i = ( int )c;
+	wxASSERT( min <= c && c <= max );
+	return c;
+}
+
+void Canvas::DesperateSearch( void )
+{
+	int moveCount = 20;
+
+	srand( 1701 );
+
+	MoveSequence historySequence;
+
+	while( true )
+	{
+		historySequence.clear();
+
+		delete flowerBox;
+		flowerBox = new FlowerBox();
+
+		int x, y, z;
+
+		x = 2;
+		y = 0;
+		z = 0;
+		int redFaceId = flowerBox->faceMatrix[ x + 2 ][ y + 2 ][ z + 2 ].id;
+
+		x = 0;
+		y = 2;
+		z = 0;
+		int whiteFaceId = flowerBox->faceMatrix[ x + 2 ][ y + 2 ][ z + 2 ].id;
+
+		x = 0;
+		y = 0;
+		z = 2;
+		int blueFaceId = flowerBox->faceMatrix[ x + 2 ][ y + 2 ][ z + 2 ].id;
+
+		x = -2;
+		y = 0;
+		z = 0;
+		int orangeFaceId = flowerBox->faceMatrix[ x + 2 ][ y + 2 ][ z + 2 ].id;
+
+		x = 0;
+		y = -2;
+		z = 0;
+		int yellowFaceId = flowerBox->faceMatrix[ x + 2 ][ y + 2 ][ z + 2 ].id;
+
+		x = 0;
+		y = 0;
+		z = -2;
+		int greenFaceId = flowerBox->faceMatrix[ x + 2 ][ y + 2 ][ z + 2 ].id;
+
+		moveSequence.clear();
+
+		for( int i = 0; i < moveCount; i++ )
+		{
+			Move move;
+			move.Random();
+			moveSequence.push_back( move );
+		}
+
+		FlushSequence( historySequence );
+
+		// Get red in position.
+		int i;
+		for( i = 0; i < 10; i++ )
+		{
+			flowerBox->FindFace( redFaceId, x, y, z );
+			if( x == 2 && y == 0 && z == 0 )
+				break;
+
+			if( x == -2 )
+				moveSequence.push_back( Move( FlowerBox::CORNER_NX_PY_NZ, FlowerBox::ROTATE_CCW ) );
+			else if( y == -2 )
+				moveSequence.push_back( Move( FlowerBox::CORNER_PX_NY_PZ, FlowerBox::ROTATE_CCW ) );
+			else if( y == 2 )
+				moveSequence.push_back( Move( FlowerBox::CORNER_PX_PY_NZ, FlowerBox::ROTATE_CCW ) );
+			else if( z == -2 )
+				moveSequence.push_back( Move( FlowerBox::CORNER_PX_NY_NZ, FlowerBox::ROTATE_CCW ) );
+			else if( z == 2 )
+				moveSequence.push_back( Move( FlowerBox::CORNER_PX_NY_PZ, FlowerBox::ROTATE_CW ) );
+			else
+				wxASSERT( false );
+
+			FlushSequence( historySequence );
+		}
+		wxASSERT( i < 10 );
+
+		// Get white in position without disturbing red.
+		for( i = 0; i < 10; i++ )
+		{
+			flowerBox->FindFace( whiteFaceId, x, y, z );
+			if( x == 0 && y == 2 && z == 0 )
+				break;
+
+			if( x == -2 )
+				moveSequence.push_back( Move( FlowerBox::CORNER_NX_PY_NZ, FlowerBox::ROTATE_CCW ) );
+			else if( y == -2 )
+				moveSequence.push_back( Move( FlowerBox::CORNER_NX_NY_PZ, FlowerBox::ROTATE_CCW ) );
+			else if( z == -2 )
+				moveSequence.push_back( Move( FlowerBox::CORNER_NX_PY_NZ, FlowerBox::ROTATE_CW ) );
+			else if( z == 2 )
+				moveSequence.push_back( Move( FlowerBox::CORNER_NX_PY_PZ, FlowerBox::ROTATE_CCW ) );
+			else
+				wxASSERT( false );
+
+			FlushSequence( historySequence );
+		}
+		wxASSERT( i < 10 );
+
+		// Get blue in position without disturbing red or white.
+		for( int i = 0; i < 10; i++ )
+		{
+			flowerBox->FindFace( blueFaceId, x, y, z );
+			if( x == 0 && y == 0 && z == 2 )
+				break;
+
+			if( x == -2 )
+				moveSequence.push_back( Move( FlowerBox::CORNER_NX_NY_PZ, FlowerBox::ROTATE_CW ) );
+			else if( y == -2 )
+				moveSequence.push_back( Move( FlowerBox::CORNER_NX_NY_PZ, FlowerBox::ROTATE_CCW ) );
+			else if( z == -2 )
+				moveSequence.push_back( Move( FlowerBox::CORNER_NX_NY_NZ, FlowerBox::ROTATE_CW ) );
+			else
+				wxASSERT( false );
+
+			FlushSequence( historySequence );
+		}
+		wxASSERT( i < 10 );
+
+		// Get orange into position without disturbing red, white or blue.
+		for( int i = 0; i < 10; i++ )
+		{
+			flowerBox->FindFace( orangeFaceId, x, y, z );
+			if( x == -2 && y == 0 && z == 0 )
+				break;
+
+			if( y == -2 )
+				moveSequence.push_back( Move( FlowerBox::CORNER_NX_NY_NZ, FlowerBox::ROTATE_CCW ) );
+			else if( z == -2 )
+				moveSequence.push_back( Move( FlowerBox::CORNER_NX_NY_NZ, FlowerBox::ROTATE_CW ) );
+			else
+				wxASSERT( false );
+
+			FlushSequence( historySequence );
+		}
+		wxASSERT( i < 10 );
+
+		// Now here's the parity test.  Where are yellow and green?
+		flowerBox->FindFace( yellowFaceId, x, y, z );
+		if( !( x == 0 && y == -2 && z == 0 ) )
+		{
+			flowerBox->FindFace( greenFaceId, x, y, z );
+			x = y = z = 0;
+			break;
+		}
+	}
+
+	// Here our history sequence should contain the secret sauce!!!!!!
+	wxString seqString = PrintSequence( historySequence );
+	seqString = "";
+}
+
+void Canvas::FlushSequence( MoveSequence& historySequence )
+{
+	while( moveSequence.size() > 0 )
+	{
+		MoveSequence::iterator iter = moveSequence.begin();
+		Move move = *iter;
+		flowerBox->PermuteCorner( move.corner, move.rotate, false );
+		moveSequence.erase( iter );
+		historySequence.push_back( move );
+	}
 }
 
 // Canvas.cpp
