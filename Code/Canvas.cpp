@@ -196,6 +196,72 @@ void Canvas::OnSize( wxSizeEvent& event )
 	Refresh();
 }
 
+/*static*/ void Canvas::TriCycleCenterFaces( MoveSequence& moveSequence, bool inverse )
+{
+	MoveSequence triCycleSequence;
+
+	for( int i = 0; i < 2; i++ )
+	{
+		triCycleSequence.push_back( Move( FlowerBox::CORNER_PX_PY_NZ, FlowerBox::ROTATE_CW ) );
+		triCycleSequence.push_back( Move( FlowerBox::CORNER_NX_PY_PZ, FlowerBox::ROTATE_CW ) );
+		triCycleSequence.push_back( Move( FlowerBox::CORNER_PX_PY_NZ, FlowerBox::ROTATE_CCW ) );
+		triCycleSequence.push_back( Move( FlowerBox::CORNER_NX_PY_PZ, FlowerBox::ROTATE_CCW ) );
+
+		triCycleSequence.push_back( Move( FlowerBox::CORNER_NX_PY_NZ, FlowerBox::ROTATE_CW ) );
+		triCycleSequence.push_back( Move( FlowerBox::CORNER_PX_PY_PZ, FlowerBox::ROTATE_CW ) );
+		triCycleSequence.push_back( Move( FlowerBox::CORNER_NX_PY_NZ, FlowerBox::ROTATE_CCW ) );
+		triCycleSequence.push_back( Move( FlowerBox::CORNER_PX_PY_PZ, FlowerBox::ROTATE_CCW ) );
+
+		triCycleSequence.push_back( Move( FlowerBox::CORNER_PX_PY_NZ, FlowerBox::ROTATE_CW ) );
+		triCycleSequence.push_back( Move( FlowerBox::CORNER_NX_PY_PZ, FlowerBox::ROTATE_CCW ) );
+		triCycleSequence.push_back( Move( FlowerBox::CORNER_PX_PY_NZ, FlowerBox::ROTATE_CCW ) );
+		triCycleSequence.push_back( Move( FlowerBox::CORNER_NX_PY_PZ, FlowerBox::ROTATE_CW ) );
+	}
+
+	triCycleSequence.push_back( Move( FlowerBox::CORNER_NX_PY_NZ, FlowerBox::ROTATE_CW ) );
+	triCycleSequence.push_back( Move( FlowerBox::CORNER_PX_PY_PZ, FlowerBox::ROTATE_CW ) );
+	triCycleSequence.push_back( Move( FlowerBox::CORNER_NX_PY_NZ, FlowerBox::ROTATE_CCW ) );
+	triCycleSequence.push_back( Move( FlowerBox::CORNER_PX_PY_PZ, FlowerBox::ROTATE_CCW ) );
+
+	if( inverse )
+		ConcateSequenceInv( triCycleSequence, moveSequence );
+	else
+		ConcateSequence( triCycleSequence, moveSequence );
+}
+
+/*static*/ void Canvas::ConcateSequenceInv( const MoveSequence& moveSequence, MoveSequence& moveSequenceConcat )
+{
+	MoveSequence moveSequenceInv;
+
+	MoveSequence::const_iterator iter = moveSequence.begin();
+	while( iter != moveSequence.end() )
+	{
+		Move move = *iter;
+
+		if( move.rotate == FlowerBox::ROTATE_CW )
+			move.rotate = FlowerBox::ROTATE_CCW;
+		else
+			move.rotate = FlowerBox::ROTATE_CW;
+
+		moveSequenceInv.push_front( move );
+
+		iter++;
+	}
+
+	ConcateSequence( moveSequenceInv, moveSequenceConcat );
+}
+
+/*static*/ void Canvas::ConcateSequence( const MoveSequence& moveSequence, MoveSequence& moveSequenceConcat )
+{
+	MoveSequence::const_iterator iter = moveSequence.begin();
+	while( iter != moveSequence.end() )
+	{
+		Move move = *iter;
+		moveSequenceConcat.push_back( move );
+		iter++;
+	}
+}
+
 void Canvas::OnMouseMiddleDown( wxMouseEvent& event )
 {
 	// Center face tri-cycle.
@@ -262,54 +328,31 @@ void Canvas::OnMouseMiddleDown( wxMouseEvent& event )
 
 #endif
 
-	// Same as last and no shorter, really.
 #if 1
 
-	moveSequence.push_back( Move( FlowerBox::CORNER_PX_PY_PZ, FlowerBox::ROTATE_CCW ) );
-
-	//{
-	moveSequence.push_back( Move( FlowerBox::CORNER_NX_NY_NZ, FlowerBox::ROTATE_CCW ) );
-	moveSequence.push_back( Move( FlowerBox::CORNER_PX_NY_PZ, FlowerBox::ROTATE_CCW ) );
-	moveSequence.push_back( Move( FlowerBox::CORNER_NX_NY_NZ, FlowerBox::ROTATE_CW ) );
-	moveSequence.push_back( Move( FlowerBox::CORNER_PX_NY_PZ, FlowerBox::ROTATE_CW ) );
-
-	moveSequence.push_back( Move( FlowerBox::CORNER_NX_NY_NZ, FlowerBox::ROTATE_CCW ) );
-	moveSequence.push_back( Move( FlowerBox::CORNER_PX_NY_PZ, FlowerBox::ROTATE_CCW ) );
-	moveSequence.push_back( Move( FlowerBox::CORNER_NX_NY_NZ, FlowerBox::ROTATE_CW ) );
-	moveSequence.push_back( Move( FlowerBox::CORNER_PX_NY_PZ, FlowerBox::ROTATE_CW ) );
-	//}
-
-	moveSequence.push_back( Move( FlowerBox::CORNER_PX_PY_PZ, FlowerBox::ROTATE_CW ) );
-	moveSequence.push_back( Move( FlowerBox::CORNER_PX_PY_PZ, FlowerBox::ROTATE_CW ) );
-
-	//{
-	moveSequence.push_back( Move( FlowerBox::CORNER_NX_NY_NZ, FlowerBox::ROTATE_CW ) );
+	moveSequence.push_back( Move( FlowerBox::CORNER_NX_PY_NZ, FlowerBox::ROTATE_CW ) );
 	moveSequence.push_back( Move( FlowerBox::CORNER_PX_PY_NZ, FlowerBox::ROTATE_CW ) );
-	moveSequence.push_back( Move( FlowerBox::CORNER_NX_NY_NZ, FlowerBox::ROTATE_CCW ) );
-	moveSequence.push_back( Move( FlowerBox::CORNER_PX_PY_NZ, FlowerBox::ROTATE_CCW ) );
+	moveSequence.push_back( Move( FlowerBox::CORNER_PX_PY_PZ, FlowerBox::ROTATE_CW ) );
 
-	moveSequence.push_back( Move( FlowerBox::CORNER_NX_NY_NZ, FlowerBox::ROTATE_CW ) );
-	moveSequence.push_back( Move( FlowerBox::CORNER_PX_PY_NZ, FlowerBox::ROTATE_CW ) );
-	moveSequence.push_back( Move( FlowerBox::CORNER_NX_NY_NZ, FlowerBox::ROTATE_CCW ) );
+	moveSequence.push_back( Move( FlowerBox::CORNER_NX_PY_NZ, FlowerBox::ROTATE_CCW ) );
 	moveSequence.push_back( Move( FlowerBox::CORNER_PX_PY_NZ, FlowerBox::ROTATE_CCW ) );
-	//}
-
-	moveSequence.push_back( Move( FlowerBox::CORNER_PX_PY_PZ, FlowerBox::ROTATE_CCW ) );
 	moveSequence.push_back( Move( FlowerBox::CORNER_PX_PY_PZ, FlowerBox::ROTATE_CCW ) );
 
-	//{
-	moveSequence.push_back( Move( FlowerBox::CORNER_NX_NY_NZ, FlowerBox::ROTATE_CCW ) );
 	moveSequence.push_back( Move( FlowerBox::CORNER_PX_NY_PZ, FlowerBox::ROTATE_CCW ) );
-	moveSequence.push_back( Move( FlowerBox::CORNER_NX_NY_NZ, FlowerBox::ROTATE_CW ) );
-	moveSequence.push_back( Move( FlowerBox::CORNER_PX_NY_PZ, FlowerBox::ROTATE_CW ) );
-
-	moveSequence.push_back( Move( FlowerBox::CORNER_NX_NY_NZ, FlowerBox::ROTATE_CCW ) );
-	moveSequence.push_back( Move( FlowerBox::CORNER_PX_NY_PZ, FlowerBox::ROTATE_CCW ) );
-	moveSequence.push_back( Move( FlowerBox::CORNER_NX_NY_NZ, FlowerBox::ROTATE_CW ) );
-	moveSequence.push_back( Move( FlowerBox::CORNER_PX_NY_PZ, FlowerBox::ROTATE_CW ) );
-	//}
 
 	moveSequence.push_back( Move( FlowerBox::CORNER_PX_PY_PZ, FlowerBox::ROTATE_CW ) );
+	moveSequence.push_back( Move( FlowerBox::CORNER_PX_PY_NZ, FlowerBox::ROTATE_CW ) );
+	moveSequence.push_back( Move( FlowerBox::CORNER_NX_PY_NZ, FlowerBox::ROTATE_CW ) );
+
+	moveSequence.push_back( Move( FlowerBox::CORNER_PX_PY_PZ, FlowerBox::ROTATE_CCW ) );
+	moveSequence.push_back( Move( FlowerBox::CORNER_PX_PY_NZ, FlowerBox::ROTATE_CCW ) );
+	moveSequence.push_back( Move( FlowerBox::CORNER_NX_PY_NZ, FlowerBox::ROTATE_CCW ) );
+	
+	moveSequence.push_back( Move( FlowerBox::CORNER_PX_NY_PZ, FlowerBox::ROTATE_CW ) );
+
+	
+	
+	
 
 #endif
 

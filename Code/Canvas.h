@@ -46,6 +46,9 @@ public:
 	typedef std::list< Move > MoveSequence;
 	MoveSequence moveSequence;
 
+	static void TriCycleCenterFaces( MoveSequence& moveSequence, bool inverse );
+	static void ConcateSequenceInv( const MoveSequence& moveSequence, MoveSequence& moveSequenceConcat );
+	static void ConcateSequence( const MoveSequence& moveSequence, MoveSequence& moveSequenceConcat );
 	static wxString PrintSequence( const MoveSequence& moveSequence );
 
 	static int attributeList[];
