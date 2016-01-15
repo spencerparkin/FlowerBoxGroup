@@ -331,21 +331,22 @@ void Canvas::OnMouseMiddleDown( wxMouseEvent& event )
 	// Parity fix!
 #if 1
 
-	moveSequence.push_back( Move( FlowerBox::CORNER_PX_PY_NZ, FlowerBox::ROTATE_CW ) );
-	moveSequence.push_back( Move( FlowerBox::CORNER_PX_PY_PZ, FlowerBox::ROTATE_CW ) );
+	moveSequence.push_back( Move( FlowerBox::CORNER_PX_NY_PZ, FlowerBox::ROTATE_CW ) );
+	moveSequence.push_back( Move( FlowerBox::CORNER_NX_NY_NZ, FlowerBox::ROTATE_CW ) );
 
 	moveSequence.push_back( Move( FlowerBox::CORNER_PX_PY_PZ, FlowerBox::ROTATE_CW ) );
 	moveSequence.push_back( Move( FlowerBox::CORNER_NX_PY_NZ, FlowerBox::ROTATE_CW ) );
 
 	moveSequence.push_back( Move( FlowerBox::CORNER_PX_PY_PZ, FlowerBox::ROTATE_CW ) );
 	moveSequence.push_back( Move( FlowerBox::CORNER_PX_NY_PZ, FlowerBox::ROTATE_CW ) );
-	moveSequence.push_back( Move( FlowerBox::CORNER_NX_PY_NZ, FlowerBox::ROTATE_CCW ) );
-	
+	moveSequence.push_back( Move( FlowerBox::CORNER_PX_PY_PZ, FlowerBox::ROTATE_CCW ) );
+
 	moveSequence.push_back( Move( FlowerBox::CORNER_NX_PY_NZ, FlowerBox::ROTATE_CW ) );
+	moveSequence.push_back( Move( FlowerBox::CORNER_NX_NY_NZ, FlowerBox::ROTATE_CW ) );
 	moveSequence.push_back( Move( FlowerBox::CORNER_NX_PY_NZ, FlowerBox::ROTATE_CCW ) );
 
+	moveSequence.push_back( Move( FlowerBox::CORNER_PX_NY_PZ, FlowerBox::ROTATE_CW ) );
 	moveSequence.push_back( Move( FlowerBox::CORNER_NX_NY_NZ, FlowerBox::ROTATE_CW ) );
-	
 	
 #endif
 
