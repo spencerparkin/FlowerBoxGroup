@@ -499,6 +499,9 @@ void Canvas::BindContext( void )
 
 void Canvas::DesperateSearch( void )
 {
+	// This was never going to work, because the centers can't swap.
+	// The edges around them, though, can swap.
+
 	int moveCount = 20;
 
 	srand( 1701 );
